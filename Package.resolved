@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "keyboardshortcuts",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Ricka7x/KeyboardShortcuts",
+      "state" : {
+        "revision" : "778b137cd7ce3b0d3ca24ed91dd51ee390a695d3",
+        "version" : "2.4.1-snapback.2"
+      }
+    }
+  ],
+  "version" : 2
+}

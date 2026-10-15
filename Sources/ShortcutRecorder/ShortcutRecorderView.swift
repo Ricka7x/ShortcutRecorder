@@ -1,0 +1,71 @@
+import AppKit
+import KeyboardShortcuts
+import SwiftUI
+
+/// A control for recording a global keyboard shortcut. Drop-in replacement for
+/// `KeyboardShortcuts.Recorder`, built on the same storage and registration.
+///
+/// ```swift
+/// ShortcutRecorderView(name: .togglePanel)
+/// ```
+///
+/// Click it, press the combination, done. Esc cancels, Delete removes, clicking outside
+/// stops recording. Style it with `.shortcutRecorderStyle(_:)`.
+public struct ShortcutRecorderView: View {
+    @StateObject private var controller: ShortcutRecordingController
+    @Environment(\.shortcutRecorderStyle) private var style
+    @State private var isHovering = false
+
+    private let placeholder: String
+
+    /// - Parameters:
+    ///   - name: The shortcut to record. Storage is handled by KeyboardShortcuts.
+    ///   - placeholder: Text shown while no shortcut is set.
+    ///   - onChange: Called when the user sets or removes the shortcut.
+    public init(
+        name: KeyboardShortcuts.Name,
+        placeholder: String = "Record Shortcut",
+        onChange: ((KeyboardShortcuts.Shortcut?) -> Void)? = nil
+    ) {
+        self.placeholder = placeholder
+        _controller = StateObject(wrappedValue: ShortcutRecordingController(name: name, onChange: onChange))
+    }
+
+    public var body: some View {
+        ShortcutRecorderPill(
+            keys: controller.shortcut.map(KeyCaps.symbols(for:)) ?? [],
+            isRecording: controller.isRecording,
+            liveKeys: KeyCaps.modifierSymbols(for: controller.liveModifiers),
+            feedback: controller.feedback,
+            placeholder: placeholder,
+            isHovering: isHovering,
+            onClear: { controller.clear() },
+            onCancel: { controller.stop() }
+        )
+        .background(AnchorView(controller: controller))
+        .onHover { isHovering = $0 }
+        .onTapGesture { controller.start() }
+        .onDisappear { controller.stop() }
+        .fixedSize()
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Keyboard shortcut")
+        .accessibilityValue(controller.shortcut?.description ?? "Not set")
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAction(named: "Record shortcut") { controller.start() }
+    }
+}
+
+/// Hands the controller the recorder's backing `NSView` so it can hit-test clicks.
+private struct AnchorView: NSViewRepresentable {
+    let controller: ShortcutRecordingController
+
+    func makeNSView(context: Context) -> NSView {
+        let view = NSView()
+        controller.anchorView = view
+        return view
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {
+        controller.anchorView = nsView
+    }
+}
