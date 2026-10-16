@@ -21,7 +21,7 @@ Shortcut storage and global registration still come from
 
 ## Requirements
 
-- macOS 13+
+- macOS 12+
 - Swift 5.9+ / Xcode 15+
 
 ## Installation
