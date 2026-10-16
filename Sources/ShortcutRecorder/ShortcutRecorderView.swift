@@ -14,6 +14,7 @@ import SwiftUI
 public struct ShortcutRecorderView: View {
     @StateObject private var controller: ShortcutRecordingController
     @Environment(\.shortcutRecorderStyle) private var style
+    @Environment(\.isEnabled) private var isEnabled
     @State private var isHovering = false
 
     private let placeholder: String
@@ -43,14 +44,23 @@ public struct ShortcutRecorderView: View {
         )
         .background(AnchorView(controller: controller))
         .onHover { isHovering = $0 }
-        .onTapGesture { controller.start() }
+        .onTapGesture {
+            // `onTapGesture` still fires on a view marked `.disabled`, so check explicitly.
+            if isEnabled { controller.start() }
+        }
+        .onChange(of: isEnabled) { enabled in
+            if !enabled { controller.stop() }
+        }
+        .opacity(isEnabled ? 1 : 0.5)
         .onDisappear { controller.stop() }
         .fixedSize()
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Keyboard shortcut")
         .accessibilityValue(controller.shortcut?.description ?? "Not set")
         .accessibilityAddTraits(.isButton)
-        .accessibilityAction(named: "Record shortcut") { controller.start() }
+        .accessibilityAction(named: "Record shortcut") {
+            if isEnabled { controller.start() }
+        }
     }
 }
 
