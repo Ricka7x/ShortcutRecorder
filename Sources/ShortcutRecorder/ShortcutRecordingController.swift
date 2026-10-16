@@ -101,7 +101,7 @@ final class ShortcutRecordingController: ObservableObject {
 
     // MARK: - Events
 
-    private func handle(_ event: NSEvent) -> NSEvent? {
+    func handle(_ event: NSEvent) -> NSEvent? {
         switch event.type {
         case .flagsChanged:
             liveModifiers = event.modifierFlags.intersection(Self.relevantModifiers)
@@ -145,7 +145,9 @@ final class ShortcutRecordingController: ObservableObject {
         }
 
         let isFunctionKey = event.specialKey.map(Self.functionKeys.contains) ?? false
-        guard !isBare || isFunctionKey, let candidate = KeyboardShortcuts.Shortcut(event: event) else {
+        // Shift alone doesn't work as a global hotkey, so it doesn't count as a modifier here.
+        let hasRealModifier = !modifiers.subtracting(.shift).isEmpty
+        guard hasRealModifier || isFunctionKey, let candidate = KeyboardShortcuts.Shortcut(event: event) else {
             reject("Add ⌘, ⌥ or ⌃")
             return nil
         }

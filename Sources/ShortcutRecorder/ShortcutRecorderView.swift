@@ -10,7 +10,7 @@ import SwiftUI
 /// ```
 ///
 /// Click it, press the combination, done. Esc cancels, Delete removes, clicking outside
-/// stops recording. Style it with `.shortcutRecorderStyle(_:)`.
+/// stops recording, and hovering a set shortcut reveals a remove button. Style it with `.shortcutRecorderStyle(_:)`.
 public struct ShortcutRecorderView: View {
     @StateObject private var controller: ShortcutRecordingController
     @Environment(\.shortcutRecorderStyle) private var style
@@ -33,14 +33,13 @@ public struct ShortcutRecorderView: View {
 
     public var body: some View {
         ShortcutRecorderPill(
-            keys: controller.shortcut.map(KeyCaps.symbols(for:)) ?? [],
+            shortcutText: controller.shortcut?.description,
             isRecording: controller.isRecording,
-            liveKeys: KeyCaps.modifierSymbols(for: controller.liveModifiers),
+            liveModifiers: ModifierGlyphs.string(for: controller.liveModifiers),
             feedback: controller.feedback,
             placeholder: placeholder,
             isHovering: isHovering,
-            onClear: { controller.clear() },
-            onCancel: { controller.stop() }
+            onClear: { controller.clear() }
         )
         .background(AnchorView(controller: controller))
         .onHover { isHovering = $0 }

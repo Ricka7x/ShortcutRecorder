@@ -4,19 +4,14 @@ import XCTest
 @testable import ShortcutRecorder
 
 @MainActor
-final class KeyCapsTests: XCTestCase {
+final class ShortcutRecorderTests: XCTestCase {
     func testModifiersUseStandardOrder() {
-        XCTAssertEqual(KeyCaps.modifierSymbols(for: [.command, .shift, .option, .control]), ["⌃", "⌥", "⇧", "⌘"])
+        XCTAssertEqual(ModifierGlyphs.string(for: [.command, .shift, .option, .control]), "⌃⌥⇧⌘")
     }
 
-    func testShortcutSplitsIntoModifiersAndKey() {
-        let shortcut = KeyboardShortcuts.Shortcut(.b, modifiers: [.command, .shift])
-        XCTAssertEqual(KeyCaps.symbols(for: shortcut), ["⇧", "⌘", "B"])
-    }
-
-    func testFunctionKeyWithoutModifiers() {
-        let shortcut = KeyboardShortcuts.Shortcut(.f5, modifiers: [])
-        XCTAssertEqual(KeyCaps.symbols(for: shortcut), ["F5"])
+    func testShortcutDescriptionIsPlainGlyphs() {
+        XCTAssertEqual(KeyboardShortcuts.Shortcut(.b, modifiers: [.command, .shift]).description, "⇧⌘B")
+        XCTAssertEqual(KeyboardShortcuts.Shortcut(.f5, modifiers: []).description, "F5")
     }
 
     func testControllerStartsWithStoredShortcut() {

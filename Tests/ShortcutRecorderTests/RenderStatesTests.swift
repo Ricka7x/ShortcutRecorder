@@ -13,13 +13,14 @@ final class RenderStatesTests: XCTestCase {
 
         for (appearance, name) in [(NSAppearance.Name.darkAqua, "dark"), (.aqua, "light")] {
             let sheet = VStack(alignment: .leading, spacing: 14) {
-                row("Empty") { ShortcutRecorderPill(keys: [], isRecording: false) }
-                row("Hover") { ShortcutRecorderPill(keys: [], isRecording: false, isHovering: true) }
-                row("Filled") { ShortcutRecorderPill(keys: ["⇧", "⌘", "B"], isRecording: false) }
-                row("Recording") { ShortcutRecorderPill(keys: ["⇧", "⌘", "B"], isRecording: true) }
-                row("Live keys") { ShortcutRecorderPill(keys: [], isRecording: true, liveKeys: ["⇧", "⌘"]) }
-                row("Error") { ShortcutRecorderPill(keys: [], isRecording: true, feedback: .error("Used by “Quit Peggo”")) }
-                row("Warning") { ShortcutRecorderPill(keys: [], isRecording: true, feedback: .warning("Reserved by macOS. Press again to use it")) }
+                row("Empty") { ShortcutRecorderPill(shortcutText: nil, isRecording: false) }
+                row("Hover") { ShortcutRecorderPill(shortcutText: nil, isRecording: false, isHovering: true) }
+                row("Filled") { ShortcutRecorderPill(shortcutText: "⇧⌘B", isRecording: false) }
+                row("Filled hover") { ShortcutRecorderPill(shortcutText: "⇧⌘B", isRecording: false, isHovering: true) }
+                row("Recording") { ShortcutRecorderPill(shortcutText: "⇧⌘B", isRecording: true) }
+                row("Live keys") { ShortcutRecorderPill(shortcutText: nil, isRecording: true, liveModifiers: "⇧⌘") }
+                row("Error") { ShortcutRecorderPill(shortcutText: nil, isRecording: true, feedback: .error("Used by “Quit Peggo”")) }
+                row("Warning") { ShortcutRecorderPill(shortcutText: nil, isRecording: true, feedback: .warning("Reserved by macOS. Press again")) }
             }
             .padding(20)
             .background(name == "dark" ? Color(white: 0.11) : Color(white: 0.97))

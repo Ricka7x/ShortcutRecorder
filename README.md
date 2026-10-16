@@ -1,8 +1,9 @@
 # ShortcutRecorder
 
 A SwiftUI control for recording global keyboard shortcuts on macOS. It replaces
-`KeyboardShortcuts.Recorder` with keycap chips, clear states, a real remove button and
-inline conflict messages, and takes its colours from your app's own theme.
+`KeyboardShortcuts.Recorder` with a flat button that turns into an input when clicked,
+inline conflict messages and a hover-to-remove button, and takes its colours from your
+app's own theme.
 
 Shortcut storage and global registration still come from
 [KeyboardShortcuts](https://github.com/sindresorhus/KeyboardShortcuts), so your existing
@@ -11,11 +12,12 @@ Shortcut storage and global registration still come from
 | State | What the user sees |
 |---|---|
 | Empty | "Record Shortcut" placeholder |
-| Hover | Slightly filled background |
-| Filled | Keycaps (`⇧` `⌘` `B`) and a remove (x) button |
-| Recording | Accent ring, "Press shortcut…", an `esc` keycap to cancel |
-| Live keys | Modifier keycaps light up as they are held |
-| Conflict | Red ring and message ("Used by “Quit App”"), or orange for macOS-reserved |
+| Hover (empty) | Slightly filled background |
+| Filled | The shortcut as bold glyphs (`⇧⌘B`) |
+| Hover (filled) | Filled background and a remove (x) button on the right |
+| Recording | Accent ring and "Press shortcut…" |
+| Live keys | Held modifiers shown in the accent colour (`⇧⌘…`) |
+| Conflict | Red ring and message ("Used by “Quit App”"), or orange for macOS-reserved shortcuts |
 
 ## Requirements
 
@@ -35,7 +37,7 @@ Shortcut storage and global registration still come from
 
 1. Open your project, then **File ▸ Add Package Dependencies…**
 2. In the search field paste `https://github.com/Ricka7x/ShortcutRecorder`
-3. Set **Dependency Rule** to *Up to Next Major Version* from `1.0.0`.
+3. Set **Dependency Rule** to *Up to Next Major Version* from `0.1.0`.
 4. Click **Add Package**, tick the **ShortcutRecorder** library for the app target, and
    click **Add Package** again.
 
@@ -46,7 +48,7 @@ Add the dependency and list the product on every target that shows a recorder:
 ```swift
 // Package.swift
 dependencies: [
-    .package(url: "https://github.com/Ricka7x/ShortcutRecorder", from: "1.0.0"),
+    .package(url: "https://github.com/Ricka7x/ShortcutRecorder", from: "0.1.0"),
 ],
 targets: [
     .target(
@@ -75,7 +77,7 @@ exists on your machine.
 For release builds you can pin exactly, as the apps do for KeyboardShortcuts:
 
 ```swift
-.package(url: "https://github.com/Ricka7x/ShortcutRecorder", exact: "1.0.0"),
+.package(url: "https://github.com/Ricka7x/ShortcutRecorder", exact: "0.1.0"),
 ```
 
 ### Migrating an app
@@ -129,6 +131,7 @@ KeyboardShortcuts.onKeyDown(for: .togglePanel) { showPanel() }
 | `⌫` / `⌦` | Removes the shortcut |
 | `⇥` Tab | Ends recording and lets focus move on |
 | Click outside, or the window loses focus | Ends recording |
+| Hover a set shortcut | Shows the remove (x) button |
 | Key with no modifier | Rejected: "Add ⌘, ⌥ or ⌃" |
 | Used by a menu item | Rejected: names the menu item |
 | Reserved by macOS | Warns once, pressing the same combo again accepts it |
@@ -170,20 +173,18 @@ Every property has a default that follows the system appearance and accent colou
 
 | Property | Type | Used for |
 |---|---|---|
-| `accent` | `Color` | Recording ring, live modifier keycaps |
+| `accent` | `Color` | Recording ring and recording text |
 | `background` | `Color` | Idle fill |
 | `hoverBackground` | `Color` | Fill while hovered |
 | `border` | `Color` | Idle hairline border |
-| `keycapBackground` | `Color` | Keycap and remove-button fill |
-| `keycapBorder` | `Color` | Keycap and remove-button border |
-| `text` | `Color` | Keycap glyphs |
+| `text` | `Color` | The recorded shortcut |
 | `secondaryText` | `Color` | Placeholder, remove button icon |
 | `error` | `Color` | Conflict ring and message |
 | `cornerRadius` | `CGFloat` | Default `8` |
 | `height` | `CGFloat` | Minimum height, default `28` |
 | `minWidth` | `CGFloat` | Minimum width, default `148` |
-| `font` | `Font` | Placeholder and prompt text |
-| `keycapFont` | `Font` | Single-glyph keycaps |
+| `font` | `Font` | Placeholder, prompt and conflict text |
+| `shortcutFont` | `Font` | The recorded shortcut |
 
 ### Applying your app's theme
 
@@ -215,7 +216,7 @@ changes.
 
 - The control is exposed as a button labelled "Keyboard shortcut" whose value is the current
   shortcut, with a "Record shortcut" action for VoiceOver.
-- The remove and cancel buttons have labels and tooltips.
+- The remove button has a label and a tooltip.
 - Known limitation: the control does not take keyboard focus from Tab, because key-view
   navigation for SwiftUI controls needs macOS 14+. Start recording with a click or the
   VoiceOver action.
